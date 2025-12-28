@@ -4,6 +4,10 @@ from langchain_core.messages import HumanMessage
 from app.graph import build_graph
 from app.schemas import ChatRequest
 import asyncio
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = FastAPI()
 graph = build_graph()
