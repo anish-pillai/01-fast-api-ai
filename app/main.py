@@ -1,16 +1,35 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
+from app.deps import get_db
 from app.graph import build_graph
-from app.schemas import ChatRequest
+from app.schemas import (
+    ChatRequest,
+    ChatSummary,
+    MessageResponse,
+    ChatHistoryResponse
+)
+from app.services.chat_service import create_chat, save_message
+from app.services.history_service import (
+    get_chats,
+    get_messages_for_chat,
+)
 import asyncio
 from dotenv import load_dotenv
 import os
+from app.db import engine
+from app.models import Base
 
 load_dotenv()
 
 app = FastAPI()
 graph = build_graph()
+
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 async def stream_chat(message: str):
     inputs = {
@@ -26,8 +45,44 @@ async def stream_chat(message: str):
 
 
 @app.post("/chat")
-async def chat(request: ChatRequest):
-    return StreamingResponse(
-        stream_chat(request.message),
-        media_type="text/plain"
+async def chat(
+    req: ChatRequest,
+    db = Depends(get_db),
+):
+    chat = await create_chat(db)
+
+    await save_message(
+        db,
+        chat_id=chat.id,
+        role="user",
+        content=req.message,
     )
+
+    return {"chat_id": chat.id}
+
+# List chats
+@app.get("/chats", response_model=list[ChatSummary])
+async def list_chats(
+    db: AsyncSession = Depends(get_db),
+):
+    chats = await get_chats(db)
+    return chats
+
+# Fetch messages for a chat
+@app.get(
+    "/chats/{chat_id}/messages",
+    response_model=ChatHistoryResponse,
+)
+async def chat_messages(
+    chat_id,
+    db: AsyncSession = Depends(get_db),
+):
+    messages = await get_messages_for_chat(db, chat_id)
+
+    if not messages:
+        raise HTTPException(status_code=404, detail="Chat not found")
+
+    return {
+        "chat_id": chat_id,
+        "messages": messages,
+    }
