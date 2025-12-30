@@ -17,9 +17,7 @@ if config.config_file_name is not None:
 
 # --- IMPORT BASE & MODELS ---
 from app.db.base import Base
-import app.models.chat
-import app.models.message
-import app.models.usage
+from app.models import Chat, Message, Usage
 
 target_metadata = Base.metadata
 
