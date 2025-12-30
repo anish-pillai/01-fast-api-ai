@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
+    "alembic>=1.17.2",
     "asyncpg>=0.31.0",
     "fastapi>=0.127.1",
     "greenlet>=3.3.0",
@@ -12,6 +13,7 @@ dependencies = [
     "langchain-openai>=1.1.6",
     "langgraph>=1.0.5",
     "openai>=2.14.0",
+    "psycopg2-binary>=2.9.11",
     "python-dotenv>=1.2.1",
     "sqlalchemy[asyncio]>=2.0.45",
     "uvicorn>=0.40.0",

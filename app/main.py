@@ -1,13 +1,11 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
 from app.deps import get_db
 from app.graph import build_graph
 from app.schemas import (
     ChatRequest,
     ChatSummary,
-    MessageResponse,
     ChatHistoryResponse
 )
 from app.services.chat_service import create_chat, save_message
@@ -17,19 +15,11 @@ from app.services.history_service import (
 )
 import asyncio
 from dotenv import load_dotenv
-import os
-from app.db import engine
-from app.models import Base
 
 load_dotenv()
 
 app = FastAPI()
 graph = build_graph()
-
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
 async def stream_chat(message: str):
     inputs = {
