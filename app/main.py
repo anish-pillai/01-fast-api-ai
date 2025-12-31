@@ -21,6 +21,9 @@ load_dotenv()
 app = FastAPI()
 graph = build_graph()
 
+import os
+print("Using DB:", os.getenv("DATABASE_URL"))
+
 async def stream_chat(message: str):
     inputs = {
         "messages": [HumanMessage(content=message)]
