@@ -4,4 +4,10 @@ uv run uvicorn app.main:app --reload
 
 # Run Image
 
-docker run --rm --env-file .env -p 8000:8000 fastapi-ai
+docker compose up -d --build
+
+docker compose exec api uv run python -m alembic revision \
+  --autogenerate \
+  -m "initial tables"
+
+docker compose logs api

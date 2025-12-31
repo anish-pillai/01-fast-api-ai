@@ -26,6 +26,10 @@ RUN uv sync --frozen
 # ---- Copy app code ----
 COPY app ./app
 
+# ---- COPY ALEMBIC FILES ----
+COPY alembic.ini .
+COPY alembic ./alembic
+
 # ---- Expose port ----
 EXPOSE 8000
 

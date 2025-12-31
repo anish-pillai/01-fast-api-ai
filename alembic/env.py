@@ -16,8 +16,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # --- IMPORT BASE & MODELS ---
-from app.db.base import Base
-from app.models import Chat, Message, Usage
+from app.db.base import Base  # where Base = declarative_base()
+from app.models.chat import Chat
+from app.models.message import Message
+from app.models.usage import Usage
 
 target_metadata = Base.metadata
 
